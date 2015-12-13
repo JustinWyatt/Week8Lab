@@ -10,36 +10,51 @@
     @Html.ActionLink("Create New", "Create")
 </p>
 
+<style>
+    .title{
+        color: blue;
+        font-size: 16px;
+    }
+
+    .likes{
+        margin-left: auto;
+
+    }
+
+    .submitted-by{
+        font-size: small;
+        color: lightblue;
+    }
+</style>
+
 
 @foreach (var item in Model)
 {
 
     var numOfComments = item.Comments.Count().ToString();
-    var hours = DateTime.Now - item.DatePosted;
+    var hours = (int)(DateTime.Now - item.DatePosted).TotalHours;
+    if (hours > 24)
+    {
+        hours = (int)(DateTime.Now - item.DatePosted).TotalDays;
+    }
+
     <div class="posts">
-        <h3 class="title">@Html.ActionLink(item.Title, "Details", new { id = item.Title })</h3>
-        <br/>
-        <p class="submitted-by">submitted @hours hours ago by @item.User</p>
-        <br/>
-        <p class="comments">@Html.ActionLink("@numOfComments comments", "", new { id = item.Comments })</p>
+        <h3 class="title">@Html.Action(item.Title, $"{item.Url}")</h3>
+        <br />
+        <p class="submitted-by">submitted @hours @(hours < 24 ? "hours" : "days") ago by <span class="user">@Html.ActionLink($"{item.User}", "", new { id = item.User })</span>></p>
+        <br />
+        <p class="comments">@Html.ActionLink($"{numOfComments} comments", "", new { id = item.Comments })</p>
+    </div>
 
-        @Html.DisplayFor(modelItem => item.Body)
-
-        @Html.DisplayFor(modelItem => item.DatePosted)
-
-        @Html.DisplayFor(modelItem => item.DateUpdated)
-        <div class="likes">
-            <div class="up" data-postid="@item.PostId">
-                <span class="glyphicon glyphicon-arrow-up"></span>
-            </div>
-
-            <div class="rank-result">
-                <h3 class="rank">Rank: @Html.DisplayFor(modelItem => item.Rank)</h3>
-            </div>
-
-            <div class="down" data-postid="@item.PostId">
-                <span class="glyphicon glyphicon-arrow-up"></span>
-            </div>
+    <div class="likes">
+        <div class="up" data-postid="@item.PostId">
+            <span class="glyphicon glyphicon-arrow-up"></span>
+        </div>
+        <div class="rank-result">
+            <h3 class="rank">Rank: @Html.DisplayFor(modelItem => item.Rank)</h3>
+        </div>
+        <div class="down" data-postid="@item.PostId">
+            <span class="glyphicon glyphicon-arrow-up"></span>
         </div>
     </div>
 
@@ -68,10 +83,7 @@
                     success: function (data) {
                         $('.rank').html(data);
                         $('div.up').unbind("click");
-
-
                     }
-
                 });
             })
             $('div.down').click(function () {
