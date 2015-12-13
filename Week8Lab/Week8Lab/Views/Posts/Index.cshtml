@@ -27,13 +27,19 @@
             @Html.DisplayFor(modelItem => item.DateUpdated)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Upvote, new { @class = "up", id = item.PostId })
+            <div class="up" id="@item.PostId">
+                @Html.DisplayFor(modelItem => item.Upvote)
+            </div>
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Downvote, new { @class = "down", id = item.PostId })
+            <div class="down" id="@item.PostId">
+                @Html.DisplayFor(modelItem => item.Downvote)
+            </div>
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Rank)
+            <div class="rank">
+                @Html.DisplayFor(modelItem => item.Rank)
+            </div>
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { id = item.PostId }) |
@@ -45,25 +51,30 @@
 
 </table>
 
-@section scripts{
-    <script>
-        $(document).ready(
-        $('.up').click(function () {
+    @section scripts{
+        <script type="text/javascript">
 
-            var post = $(this).id('postid');
 
-            $.ajax({
-                type: 'POST',
-                url: '@Url.Action("Posts", "Upvote")',
-                data: post,
-                success: function () {
-                    $('.up').unbind("click");
-                    $('.up').css("color", "green");
-                }
+            $(document).ready(function () {
 
+                $('div.up').click(function () {
+
+                    var post = $(this).data('postid');
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("Upvote", "Posts")',
+                        data: { postid : post },
+                        success: function (data) {
+                            alert('success');
+                            $('.rank').html(data)
+                            $('.up').unbind("click");
+                            $('.up').css("color", "green");
+                        }
+
+                    });
+                })
             });
 
-        })
-        );
-    </script>
-}
+        </script>
+    }

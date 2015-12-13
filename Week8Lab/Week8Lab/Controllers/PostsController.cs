@@ -15,11 +15,10 @@ namespace Week8Lab.Controllers
         private RedditContext db = new RedditContext();
 
         [HttpPost]
-        [Route("posts/upvote")]
         public ActionResult UpVote(int postid)
         {
             var post = db.Posts.Find(postid);
-            var upvote = post.Upvote + 1;
+            post.Upvote ++;
             post.Rank = post.Upvote - post.Downvote;
 
             db.SaveChanges();
@@ -35,7 +34,6 @@ namespace Week8Lab.Controllers
             post.Rank = post.Upvote - post.Downvote;
 
             db.SaveChanges();
-
             return Content(post.Rank.ToString());
         }
 
