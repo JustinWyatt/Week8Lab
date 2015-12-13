@@ -13,75 +13,84 @@
 
 @foreach (var item in Model)
 {
-    
-            @Html.DisplayFor(modelItem => item.Title)
-        
-            @Html.DisplayFor(modelItem => item.Body)
-        
-            @Html.DisplayFor(modelItem => item.DatePosted)
-        
-            @Html.DisplayFor(modelItem => item.DateUpdated)
-        
+
+    var numOfComments = item.Comments.Count().ToString();
+    var hours = DateTime.Now - item.DatePosted;
+    <div class="posts">
+        <h3 class="title">@Html.ActionLink(item.Title, "Details", new { id = item.Title })</h3>
+        <br/>
+        <p class="submitted-by">submitted @hours hours ago by @item.User</p>
+        <br/>
+        <p class="comments">@Html.ActionLink("@numOfComments comments", "", new { id = item.Comments })</p>
+
+        @Html.DisplayFor(modelItem => item.Body)
+
+        @Html.DisplayFor(modelItem => item.DatePosted)
+
+        @Html.DisplayFor(modelItem => item.DateUpdated)
+        <div class="likes">
             <div class="up" data-postid="@item.PostId">
-               Upvote
+                <span class="glyphicon glyphicon-arrow-up"></span>
             </div>
-        
-            <div class="rank">
-                Rank: @Html.DisplayFor(modelItem => item.Rank)
+
+            <div class="rank-result">
+                <h3 class="rank">Rank: @Html.DisplayFor(modelItem => item.Rank)</h3>
             </div>
-        
+
             <div class="down" data-postid="@item.PostId">
-                Downvote
+                <span class="glyphicon glyphicon-arrow-up"></span>
             </div>
-        
-            @Html.ActionLink("Edit", "Edit", new { id = item.PostId }) |
+        </div>
+    </div>
+
+    @Html.ActionLink("Edit", "Edit", new { id = item.PostId }) |
             @Html.ActionLink("Details", "Details", new { id = item.PostId }) |
-            @Html.ActionLink("Delete", "Delete", new { id = item.PostId })
-        
+@Html.ActionLink("Delete", "Delete", new { id = item.PostId })
+
 }
 
 
 
-    @section scripts{
-        <script type="text/javascript">
+@section scripts{
+    <script type="text/javascript">
 
 
-            $(document).ready(function () {
+        $(document).ready(function () {
 
-                $('div.up').click(function () {
+            $('div.up').click(function () {
 
-                    var post = $(this).data('postid');
+                var post = $(this).data('postid');
 
-                        $.ajax({
-                        type: 'POST',
-                        url: '/posts/upvote',
-                        data: { postid : post },
-                        success: function (data) {
-                            $('.rank').html(data);
-                            $('div.up').unbind("click");
+                $.ajax({
+                    type: 'POST',
+                    url: '/posts/upvote',
+                    data: { postid: post },
+                    success: function (data) {
+                        $('.rank').html(data);
+                        $('div.up').unbind("click");
 
 
-                        }
+                    }
 
-                    });
-                })
-                $('div.down').click(function () {
+                });
+            })
+            $('div.down').click(function () {
 
-                    var post = $(this).data('postid');
+                var post = $(this).data('postid');
 
-                    $.ajax({
-                        type: 'POST',
-                        url: '/posts/downvote',
-                        data: { postid: post },
-                        success: function (data) {
-                            $('.rank').html(data);
-                            $('div.down').unbind("click");
+                $.ajax({
+                    type: 'POST',
+                    url: '/posts/downvote',
+                    data: { postid: post },
+                    success: function (data) {
+                        $('.rank').html(data);
+                        $('div.down').unbind("click");
 
-                        }
+                    }
 
-                    });
-                })
-            });
+                });
+            })
+        });
 
-        </script>
-    }
+    </script>
+}
