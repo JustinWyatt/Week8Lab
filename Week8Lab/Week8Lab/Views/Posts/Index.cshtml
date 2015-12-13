@@ -68,9 +68,11 @@
     <div class="posts">
         <h3 class="title">@Html.Action(item.Title, $"{item.Url}")</h3>
         <br />
-        <p class="submitted-by">submitted @hours @(hours < 24 ? "hours" : "days") ago by <span class="user">@Html.ActionLink($"{item.User}", "", new { id = item.User })</span>></p>
+        <p class="submitted-by">submitted @hours @(hours >  24 ? "days" : "hours") ago by <span class="user">@Html.ActionLink($"{item.User}", "", new { id = item.User })</span>></p>
         <br />
-        <p class="comments">@Html.ActionLink($"{numOfComments} comments", "Comments", new { id = item.Comments })</p>
+        <p class="comments">@Ajax.ActionLink($"{numOfComments} comments", "Comments", new AjaxOptions { UpdateTargetId = "comments-target",
+                                                                                                        InsertionMode = InsertionMode.InsertAfter,
+                                                                                                        HttpMethod = "GET" })</p>
 
         <div class="likes">
             <div class="up" data-postid="@item.PostId">
@@ -83,7 +85,10 @@
                 <span class="glyphicon glyphicon-arrow-down"></span>
             </div>
         </div>
+
     </div>
+
+    <div class="comment-target"></div>
     
     @Html.ActionLink("Edit", "Edit", new { id = item.PostId })
     @Html.ActionLink("Details", "Details", new { id = item.PostId })
@@ -91,9 +96,8 @@
 
 }
 
-
-
 @section scripts{
+@Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.min.js")
     <script type="text/javascript">
 
 
