@@ -1,0 +1,69 @@
+﻿@model IEnumerable<Week8Lab.Models.Post>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+
+@foreach (var item in Model)
+{
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Title)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Body)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.DatePosted)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.DateUpdated)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Upvote, new { @class = "up", id = item.PostId })
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Downvote, new { @class = "down", id = item.PostId })
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Rank)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id = item.PostId }) |
+            @Html.ActionLink("Details", "Details", new { id = item.PostId }) |
+            @Html.ActionLink("Delete", "Delete", new { id = item.PostId })
+        </td>
+    </tr>
+}
+
+</table>
+
+@section scripts{
+    <script>
+        $(document).ready(
+        $('.up').click(function () {
+
+            var post = $(this).id('postid');
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Posts", "Upvote")',
+                data: post,
+                success: function () {
+                    $('.up').unbind("click");
+                    $('.up').css("color", "green");
+                }
+
+            });
+
+        })
+        );
+    </script>
+}
