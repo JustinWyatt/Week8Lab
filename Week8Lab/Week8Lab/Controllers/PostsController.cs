@@ -10,8 +10,11 @@ using Week8Lab.Models;
 
 namespace Week8Lab.Controllers
 {
+
     public class PostsController : Controller
     {
+        public const bool IsLoggedIn = false;
+
         private RedditContext db = new RedditContext();
 
         [HttpGet]
@@ -20,12 +23,7 @@ namespace Week8Lab.Controllers
             return View();
         }
 
-        [HttpPost]
-        public ActionResult CreateUser()
-        {
-            return RedirectToAction();
-        }
-
+        
         [HttpGet]
         public ActionResult LoginView()
         {
@@ -33,9 +31,65 @@ namespace Week8Lab.Controllers
         }
 
         [HttpPost]
-        public ActionResult Login()
+        [ValidateAntiForgeryToken]
+        public ActionResult Login(User u)
         {
-            return RedirectToAction();
+            // this action is for handle post (login)
+            if (ModelState.IsValid) // this is check validity
+            {
+                using (RedditContext db = new RedditContext())
+                {
+                    var v = db.Users.Where(a => a.UserName.Equals(u.UserName) && a.Password.Equals(u.Password)).FirstOrDefault();
+                    if (v != null)
+                    {
+                        Session["LogedUserID"] = v.UserId.ToString();
+                        Session["LogedUserName"] = v.UserName.ToString();
+                        return RedirectToAction("AfterLogin");
+                    }
+                }
+            }
+            return View(u);
+        }
+
+        public ActionResult AfterLogin()
+        {
+            if (Session["LogedUserID"] != null)
+            {
+                return View("Index");
+            }
+            else
+            {
+                return RedirectToAction("Login");
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Register(UserVM user)
+        {
+            var newUser = new User()
+            {
+                Password = user.Password,
+                UserName = user.UserName,
+                UserId = db.Users.Max().UserId + 1
+            };
+
+            if (newUser.UserName == db.Users.Where(x=>x.UserName == newUser.UserName).Select(x=>x.UserName).ToString())
+            {
+                
+            }
+
+            if (ModelState.IsValid)
+            {
+                
+                //you should check duplicate registration here 
+                db.Users.Add(newUser);
+                db.SaveChanges();
+                ModelState.Clear();
+                ViewBag.Message = "Successfully Registration Done";
+
+            }
+            return View();
         }
 
         [HttpGet]
@@ -45,17 +99,25 @@ namespace Week8Lab.Controllers
         }
 
         [HttpPost]
-        public ActionResult CreateComment(CommentVM comment)
+        public ActionResult CreateComment(CommentVM comment, User user)
         {
+
             var post = db.Posts.Find(comment.Post.PostId);
-            return Content();
+            var newComment = new Comment()
+            {
+                Post = post,
+                CommentId = db.Comments.Max().CommentId + 1,
+                DatePosted = DateTime.Now,
+                Text = comment.Text,
+            };
+            return Content(newComment.ToString());
         }
 
         [HttpPost]
         public ActionResult UpVote(int postid)
         {
             var post = db.Posts.Find(postid);
-            post.Upvote ++;
+            post.Upvote++;
             post.Rank = post.Upvote - post.Downvote;
             db.SaveChanges();
             return Content(post.Rank.ToString());
@@ -64,8 +126,9 @@ namespace Week8Lab.Controllers
         [HttpPost]
         public ActionResult DownVote(int postid)
         {
+
             var post = db.Posts.Find(postid);
-            post.Downvote ++;
+            post.Downvote++;
             post.Rank = post.Upvote - post.Downvote;
 
             db.SaveChanges();
@@ -110,7 +173,7 @@ namespace Week8Lab.Controllers
             {
                 Title = post.Title,
                 Body = post.Body,
-                PostId = db.Posts.Max(x => x.PostId) + 1,
+                PostId = db.Posts.Max().PostId + 1,
                 DatePosted = DateTime.Now,
                 DateUpdated = DateTime.Now,
                 Url = post.Url
