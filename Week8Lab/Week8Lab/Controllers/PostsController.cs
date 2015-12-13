@@ -26,11 +26,10 @@ namespace Week8Lab.Controllers
         }
 
         [HttpPost]
-        [Route("posts/downvote")]
         public ActionResult DownVote(int postid)
         {
             var post = db.Posts.Find(postid);
-            var downvote = post.Downvote + 1;
+            post.Downvote ++;
             post.Rank = post.Upvote - post.Downvote;
 
             db.SaveChanges();

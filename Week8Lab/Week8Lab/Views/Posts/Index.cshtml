@@ -13,43 +13,34 @@
 
 @foreach (var item in Model)
 {
-    <tr>
-        <td>
+    
             @Html.DisplayFor(modelItem => item.Title)
-        </td>
-        <td>
+        
             @Html.DisplayFor(modelItem => item.Body)
-        </td>
-        <td>
+        
             @Html.DisplayFor(modelItem => item.DatePosted)
-        </td>
-        <td>
+        
             @Html.DisplayFor(modelItem => item.DateUpdated)
-        </td>
-        <td>
-            <div class="up" id="@item.PostId">
-                @Html.DisplayFor(modelItem => item.Upvote)
+        
+            <div class="up" data-postid="@item.PostId">
+               Upvote
             </div>
-        </td>
-        <td>
-            <div class="down" id="@item.PostId">
-                @Html.DisplayFor(modelItem => item.Downvote)
-            </div>
-        </td>
-        <td>
+        
             <div class="rank">
-                @Html.DisplayFor(modelItem => item.Rank)
+                Rank: @Html.DisplayFor(modelItem => item.Rank)
             </div>
-        </td>
-        <td>
+        
+            <div class="down" data-postid="@item.PostId">
+                Downvote
+            </div>
+        
             @Html.ActionLink("Edit", "Edit", new { id = item.PostId }) |
             @Html.ActionLink("Details", "Details", new { id = item.PostId }) |
             @Html.ActionLink("Delete", "Delete", new { id = item.PostId })
-        </td>
-    </tr>
+        
 }
 
-</table>
+
 
     @section scripts{
         <script type="text/javascript">
@@ -61,14 +52,31 @@
 
                     var post = $(this).data('postid');
 
-                    $.ajax({
+                        $.ajax({
                         type: 'POST',
-                        url: '@Url.Action("Upvote", "Posts")',
+                        url: '/posts/upvote',
                         data: { postid : post },
                         success: function (data) {
-                            alert('success');
-                            $('.rank').html(data)
-                            
+                            $('.rank').html(data);
+                            $('div.up').unbind("click");
+
+
+                        }
+
+                    });
+                })
+                $('div.down').click(function () {
+
+                    var post = $(this).data('postid');
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '/posts/downvote',
+                        data: { postid: post },
+                        success: function (data) {
+                            $('.rank').html(data);
+                            $('div.down').unbind("click");
+
                         }
 
                     });
